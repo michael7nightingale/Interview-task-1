@@ -1,3 +1,7 @@
+"""
+Функционал ChatGTP API для генерации поздравлений.
+"""
+
 import openai
 from data_.settings import CELEBRATION_GENERATOR
 from src import exceptions
