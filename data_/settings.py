@@ -15,7 +15,7 @@ TABLES = {
 CELEBRATION_GENERATOR = {
     "MESSAGE": """Напиши поздравление для друга __name__ в день рождения, который родился 
     __birthday__. Сделай это душевно и лаконично, всё таки это день рождения. Не забудь упомянуть дату рождения.""",
-    "TOKEN": "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", # ВВЕДИТЕ РАБОЧИЙ API-КЛЮЧ!!! МОЙ БЛОКИРУЕТСЯ СПУСТЯ 30 МИНУТ ИЗ-ЗА ГЕОЛОКАЦИИ
+    "TOKEN": "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", # ВВЕДИТЕ РАБОЧИЙ API-КЛЮЧ!!! МОЙ БЛОКИРУЕТСЯ СПУСТЯ 30 МИНУТ ИЗ-ЗА ГЕОЛОКАЦИИ
     "NAME_COLUMN": "name",
     "BIRTHDAY_COLUMN": 'birthday',
 
