@@ -3,7 +3,7 @@ from typing import Sequence
 import pandas as pd
 import csv
 
-import exceptions
+from src import exceptions
 
 
 class BaseTableManager(ABC):
@@ -129,6 +129,7 @@ class CsvTableManager(BaseTableManager):
             writer.writeheader()
             for d in self._data:
                 writer.writerow(d)
+        return filepath
 
 
 class PandasTableManager(BaseTableManager):

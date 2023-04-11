@@ -1,7 +1,6 @@
 import openai
-from config import CELEBRATION_GENERATOR
-import tables
-import exceptions
+from data_.settings import CELEBRATION_GENERATOR
+from src import exceptions
 
 
 class Celebrator:
@@ -18,12 +17,13 @@ class Celebrator:
                 {'role': "user", "content": message}
             ]
         )
+        print(chat_.choices[0].message.content)
         return chat_.choices[0].message.content
 
     def generate_celebrations(self, data: list[dict]) -> list:
         """Генерация списка поздравлений"""
         # проверка на валидность формата представления данных
-        if all("name" in line and "birthday" in line for line in data):
+        if all(CELEBRATION_GENERATOR["NAME_COLUMN"] in line and CELEBRATION_GENERATOR["BIRTHDAY_COLUMN"] in line for line in data):
             return [self.chat(
                 self.replace_message_with_data(person['name'], person['birthday'])
             ) for person in data
@@ -36,4 +36,9 @@ class Celebrator:
         """Заменяет служебные пропуски в шаблоне запроса на данные"""
         return CELEBRATION_GENERATOR['MESSAGE'].replace('__name__', name).replace('__birthday__', birthday)
 
+
+if __name__ == '__main__':
+    c = Celebrator(CELEBRATION_GENERATOR['TOKEN'])
+    print(c.chat('Напиши поздравление для друга Матвея в его день рождения, который родился 15.10.\
+     Сделай это душевно и лаконично, всё таки это день рождения.'))
 

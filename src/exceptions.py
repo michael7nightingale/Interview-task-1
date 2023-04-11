@@ -27,3 +27,6 @@ class InvalidDataFormat(BaseException):
     """Неверный формат данных list[dict['name': str, 'birthday': str]]"""
 
 
+class FileExtensionError(BaseException):
+    """Разрешение данного файла запрещено"""
+

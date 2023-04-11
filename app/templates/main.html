@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main page</title>
+</head>
+<body>
+    <div>
+        <form method="post" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
+            <label for="form_file">Допустимые форматы: .csv</label>
+            <input type="file" id="form_file" name='file' placeholder="Перетащите файл">
+            <input type="submit" placeholder="Генерировать поздравления">
+        </form>
+
+    </div>
+</body>
+</html>
