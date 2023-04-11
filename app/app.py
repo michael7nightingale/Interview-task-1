@@ -71,7 +71,6 @@ def verify_filename(filename: str) -> bool:
     return False
 
 
-
 # запуск приложения
 if __name__ == '__main__':
     app.run(host=SERVER['HOST'],

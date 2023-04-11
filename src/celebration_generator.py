@@ -20,12 +20,12 @@ class Celebrator:
         print(chat_.choices[0].message.content)
         return chat_.choices[0].message.content
 
-    def generate_celebrations(self, data: list[dict]) -> list:
+    def generate_celebrations(self, data: list[dict]) -> list[str]:
         """Генерация списка поздравлений"""
         # проверка на валидность формата представления данных
         if all(CELEBRATION_GENERATOR["NAME_COLUMN"] in line and CELEBRATION_GENERATOR["BIRTHDAY_COLUMN"] in line for line in data):
             return [self.chat(
-                self.replace_message_with_data(person['name'], person['birthday'])
+                self.replace_message_with_data(str(person['name']), str(person['birthday']))
             ) for person in data
                    ]
         else:
