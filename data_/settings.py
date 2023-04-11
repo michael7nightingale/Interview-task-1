@@ -15,7 +15,7 @@ TABLES = {
 CELEBRATION_GENERATOR = {
     "MESSAGE": """Напиши поздравление для друга __name__ в его день рождения, который родился 
     __birthday__. Сделай это душевно и лаконично, всё таки это день рождения.""",
-    "TOKEN": "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",
+    "TOKEN": "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", # ВВЕДИТЕ РАБОЧИЙ API-КЛЮЧ!!! МОЙ БЛОКИРУЕТСЯ СПУСТЯ 30 МИНУТ ИЗ-ЗА ГЕОЛОКАЦИИ
     "NAME_COLUMN": "name",
     "BIRTHDAY_COLUMN": 'birthday',
 
@@ -25,6 +25,7 @@ CELEBRATION_GENERATOR = {
 APP = {
     "UPLOAD_FOLDER": os.path.join(os.path.abspath(os.path.dirname(__file__)).replace('data_', 'app', -1), 'corridor/'),
     "ALLOWED_EXTENSIONS": frozenset(("csv", )),
+    "SECRET_KEY": "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",
 
 }
 

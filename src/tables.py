@@ -66,7 +66,7 @@ class CsvTableManager(BaseTableManager):
     columns: list
 
     def open_data(self):
-        with open(self.filepath) as csv_file:
+        with open(self.filepath, encoding='utf-8') as csv_file:
             self._data = list(csv.DictReader(csv_file))
         self.columns = list(self._data[0].keys())
 
@@ -123,13 +123,12 @@ class CsvTableManager(BaseTableManager):
     def save_data(self, filepath=None) -> None:
         if filepath is None:
             filepath = self.filepath
-        with open(filepath, 'w') as f:
+        with open(filepath, 'w', encoding='utf-8') as f:
             writer = csv.DictWriter(
                 f, fieldnames=list(self._data[0].keys()), quoting=csv.QUOTE_NONNUMERIC)
             writer.writeheader()
             for d in self._data:
                 writer.writerow(d)
-        return filepath
 
 
 class PandasTableManager(BaseTableManager):

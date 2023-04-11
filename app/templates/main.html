@@ -10,6 +10,9 @@
             <label for="form_file">Допустимые форматы: .csv</label>
             <input type="file" id="form_file" name='file' placeholder="Перетащите файл">
             <input type="submit" placeholder="Генерировать поздравления">
+            {% for error in get_flashed_messages() %}
+            <h1>{{ error }}</h1>
+            {% endfor %}}
         </form>
 
     </div>

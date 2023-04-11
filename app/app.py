@@ -1,3 +1,7 @@
+"""
+Веб-система поздравлений. Запуск через терминал или вручную.
+"""
+
 import os
 from flask import Flask, render_template, request, redirect, send_file, send_from_directory, url_for, flash
 
@@ -19,6 +23,7 @@ def main_get():
 
 
 def generate_celebrations(filepath: str):
+    """Генерация поздравлений."""
     table = tables.CsvTableManager(filepath, False, 0)
     table.open_data()
     celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
@@ -34,29 +39,36 @@ def generate_celebrations(filepath: str):
 
 @app.post("/upload_file/")
 def upload_file():
-    file = request.files['file']
-    if file and verify_file(file.filename):
-        print(123)
-        print(app.config['UPLOAD_FOLDER'])
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filepath)
+    """Загрузка и обработка файла."""
+    try:
+        file = request.files['file']
+        print(file and verify_filename(file.filename))
+        if file and verify_filename(file.filename):
+            print(app.config['UPLOAD_FOLDER'])
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(filepath)
 
-        generate_celebrations(filepath)
+            generate_celebrations(filepath)
 
-        # после обработки отправляем файл пользователю
-        return send_file(path_or_file=filepath,
-                         as_attachment=True)
+            # после обработки отправляем файл пользователю
+            return send_file(path_or_file=filepath,
+                             as_attachment=True)
+        # если не прошли условия
+        flash('Incorrect file extension or data')
+    except Exception as error:
+        # отображаем пользователю ошибку, если она нашлась
+        flash(str(error))
+    # редирект на главную страницу
+    return redirect(url_for('main_get'))
 
-    # если не прошли условия
-    flash('Incorrect file extension or data')
-    redirect(url_for('main_get'))
 
-
-def verify_file(filename: str) -> bool:
+def verify_filename(filename: str) -> bool:
+    """Проверка расширения файла"""
     try:
         return '.' in filename and filename.rsplit('.', 1)[1] in APP["ALLOWED_EXTENSIONS"]
     except IndexError or TypeError:
-        return False
+        pass
+    return False
 
 
 
