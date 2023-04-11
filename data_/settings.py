@@ -2,20 +2,20 @@
 Файл с конфигурациями.
 """
 
-
-# строго для src/tables.py
 import os
 
+
+# строго для src/tables.py
 TABLES = {
-    "ALLOWED_EXTENSIONS": frozenset("csv", )
+    "ALLOWED_EXTENSIONS": frozenset(("csv", ))
 
 }
 
 # строго для src/celebration_generator.py
 CELEBRATION_GENERATOR = {
-    "MESSAGE": """Напиши поздравление для друга __name__ в его день рождения, который родился 
-    __birthday__. Сделай это душевно и лаконично, всё таки это день рождения. Не забудь упомянуть его дату рождения.""",
-    "TOKEN": "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", # ВВЕДИТЕ РАБОЧИЙ API-КЛЮЧ!!! МОЙ БЛОКИРУЕТСЯ СПУСТЯ 30 МИНУТ ИЗ-ЗА ГЕОЛОКАЦИИ
+    "MESSAGE": """Напиши поздравление для друга __name__ в день рождения, который родился 
+    __birthday__. Сделай это душевно и лаконично, всё таки это день рождения. Не забудь упомянуть дату рождения.""",
+    "TOKEN": "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", # ВВЕДИТЕ РАБОЧИЙ API-КЛЮЧ!!! МОЙ БЛОКИРУЕТСЯ СПУСТЯ 30 МИНУТ ИЗ-ЗА ГЕОЛОКАЦИИ
     "NAME_COLUMN": "name",
     "BIRTHDAY_COLUMN": 'birthday',
 
