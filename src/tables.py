@@ -4,6 +4,7 @@ import pandas as pd
 import csv
 
 from src import exceptions
+from data_.settings import logger, TABLES
 
 
 class BaseTableManager(ABC):
@@ -13,6 +14,7 @@ class BaseTableManager(ABC):
         self._delete_mode = delete_mode
         self.default = default
         self._data = None
+        logger.info(f"Создан менеджер таблиц для файла по пути {self.filepath}")
 
     @property
     def data(self):
@@ -69,6 +71,7 @@ class CsvTableManager(BaseTableManager):
         with open(self.filepath, encoding='utf-8') as csv_file:
             self._data = list(csv.DictReader(csv_file))
         self.columns = list(self._data[0].keys())
+        logger.info(f"Открыт файл для менеджера файла {self.filepath}")
 
     def add_line(self, line_data: Sequence = tuple(),
                  nullable: bool = False) -> None:
@@ -83,6 +86,7 @@ class CsvTableManager(BaseTableManager):
                              )
         else:
             if len(line_data) != len(self.columns):
+                logger.error(exceptions.AddLineException.__doc__)
                 raise exceptions.AddLineException()
             else:
                 self._data.append(dict(zip(self.columns, line_data)))
@@ -95,14 +99,17 @@ class CsvTableManager(BaseTableManager):
             column_data = tuple(column_data) + tuple((self.default for _ in range(nulls_to_add)))
         else:
             if len(column_data) != len(self.columns):
+                logger.error(exceptions.AddColumnException.__doc__)
                 raise exceptions.AddColumnException()
         # добавляем новую колонку в данные
         self.columns.append(column_name)
         for line_number in range(len(self._data)):
             self._data[line_number][column_name] = column_data[line_number]
+        logger.info(f"В данные объекта успешно добавлена колонка {column_name}")
 
     def get_column_data(self, column_name: str) -> tuple:
         if column_name not in self.columns:
+            logger.error(exceptions.ColumnDoesNotExists.__doc__)
             raise exceptions.ColumnDoesNotExists
         return tuple((i[column_name] for i in self._data))
 
@@ -112,9 +119,11 @@ class CsvTableManager(BaseTableManager):
     def delete_column(self, column_name: str) -> None:
         # если выключен режим удаления
         if not self._delete_mode:
+            logger.error(exceptions.DeletingModeException.__doc__)
             raise exceptions.DeletingModeException
         # если колонны с таки именем не существует
         if column_name not in self.columns:
+            logger.error(exceptions.ColumnDoesNotExists.__doc__)
             raise exceptions.ColumnDoesNotExists
         # если такая колонна есть
         for line in self._data:
@@ -129,6 +138,7 @@ class CsvTableManager(BaseTableManager):
             writer.writeheader()
             for d in self._data:
                 writer.writerow(d)
+        logger.info(f'SUCCESS - файл с таблицей сохранен по пути {filepath}')
 
 
 class PandasTableManager(BaseTableManager):
@@ -140,9 +150,11 @@ class PandasTableManager(BaseTableManager):
     def open_data(self) -> None:
         self._data: pd.DataFrame = pd.read_csv(self.filepath)
         self.columns: list = list(self._data.columns)
+        logger.info(f"Открыт файл для менеджера файла {self.filepath}")
 
     def get_column_data(self, column_name: str) -> tuple:
         if column_name not in self.columns:
+            logger.error(exceptions.ColumnDoesNotExists.__doc__)
             raise exceptions.ColumnDoesNotExists
         return tuple(self._data[column_name])
 
@@ -154,9 +166,11 @@ class PandasTableManager(BaseTableManager):
                 (list(args) + [self.default for _ in range(nulls_to_add)])[:len(self._data)]
         else:
             if len(args) != len(self.columns):
+                logger.error(exceptions.AddLineException.__doc__)
                 raise exceptions.AddLineException()
             else:
                 self._data.loc[len(self._data)] = args
+        logger.info(f"В данные объекта успешно добавлена строчка")
 
     def add_column(self, column_name: str,
                    column_data: Sequence = tuple(),
@@ -166,20 +180,25 @@ class PandasTableManager(BaseTableManager):
             self._data[column_name] = (list(column_data) + ["" for _ in range(nulls_to_add)])[:len(self._data.values)]
         else:
             if len(column_data) != len(self.columns):
+                logger.error(exceptions.AddColumnException.__doc__)
                 raise exceptions.AddColumnException()
             else:
                 self._data[column_name] = column_data
         self.columns.append(column_name)
+        logger.info(f"В данные объекта успешно добавлена колонка {column_name}")
 
     def delete_column(self, column_name: str) -> None:
         # если выключен режим удаления
         if not self._delete_mode:
+            logger.error(exceptions.DeletingModeException.__doc__)
             raise exceptions.DeletingModeException
         # если колонны с таки именем не существует
         if column_name not in self.columns:
+            logger.error(exceptions.ColumnDoesNotExists.__doc__)
             raise exceptions.ColumnDoesNotExists
         # если такая колонна есть
         del self._data[column_name]
+        logger.info(f"Из данных объекта успешно удалена колонка {column_name}")
 
     def get_list_of_dicts_data(self) -> list[dict]:
         return [
@@ -192,12 +211,15 @@ class PandasTableManager(BaseTableManager):
         if filepath is None:
             filepath = self.filepath
         self._data.to_csv(filepath)
+        logger.info(f'SUCCESS - файл с таблицей сохранен по пути {filepath}')
 
 
 if __name__ == '__main__':
-    table = PandasTableManager('test.csv', True, 0)
-    table.open_data()
-    print(table.add_column('mama', nullable=True))
-    print(table.columns)
-    print(table.get_list_of_dicts_data())
+    # table = PandasTableManager('d:test.csv', True, 0)
+    # table.open_data()
+    # print(table.add_column('mama', nullable=True))
+    # print(table.columns)
+    # print(table.get_list_of_dicts_data())
+    pass
+
 
