@@ -3,9 +3,9 @@
 """
 import asyncio
 import os
-from flask import Flask, render_template, request, redirect, send_file, send_from_directory, url_for, flash
+from flask import Flask, render_template, request, redirect, send_file, url_for, flash
 
-from data_.settings import APP, SERVER, CELEBRATION_GENERATOR
+from data_.settings import APP, SERVER, CELEBRATION_GENERATOR, logger
 from src import tables, exceptions, celebration_generator
 
 # экземпляр приложения с названием по соглашению
@@ -19,6 +19,7 @@ app.config = dict(
 @app.get("/")
 def main_get():
     """Главная страница при GET-запросе"""
+    logger.info(f"__APP__...GET-запрос по адресу /")
     return render_template("main.html")
 
 
@@ -67,26 +68,25 @@ def async_generate_celebrations(filepath: str):
 @app.post("/upload_file/")
 def upload_file():
     """Загрузка и обработка файла."""
+    logger.info(f"__APP__...POST-запрос по адресу /upload_file/")
     try:
         file = request.files['file']
-        print(file and verify_filename(file.filename))
         if file and verify_filename(file.filename):
-            print(app.config['UPLOAD_FOLDER'])
+            logger.info(f"__APP__ Путь до папки в коридоре: {app.config['UPLOAD_FOLDER']}")
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
-
             # асинхронная генерация
             async_generate_celebrations(filepath)
             # или можно синхронно:
             # generate_celebrations(filepath)
-
             # после обработки отправляем файл пользователю
             return send_file(path_or_file=filepath, as_attachment=True)
-
         # если не прошли условия
+        logger.error(f"__APP__ Неразрешенное расширение файла")
         flash('Incorrect file extension or data')
     except Exception as error:
         # отображаем пользователю ошибку, если она нашлась
+        logger.error("__APP__" + str(error))
         flash(str(error))
     # редирект на главную страницу
     return redirect(url_for('main_get'))
@@ -98,6 +98,7 @@ def verify_filename(filename: str) -> bool:
         return '.' in filename and filename.rsplit('.', 1)[1] in APP["ALLOWED_EXTENSIONS"]
     except IndexError or TypeError:
         pass
+    logger.warning(f"__APP__ Файл не прошел проверку на валидность расширения: {filename}")
     return False
 
 

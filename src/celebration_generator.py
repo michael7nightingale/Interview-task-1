@@ -13,7 +13,7 @@ class BaseCelebrator(ABC):
     def __init__(self, token: str):
         self.__token = token
         openai.api_key = self.__token
-        logger.info("Успешно инициализирован и авторизирован API")
+        logger.info("__CELEBRATION_GENERATOR__ Успешно инициализирован и авторизирован API")
 
     @staticmethod
     def replace_message_with_data(name: str, birthday: str) -> str:
@@ -44,7 +44,7 @@ class Celebrator(BaseCelebrator):
             stop=None,
             temperature=0.5,
         )
-        logger.info(f"Ответ от CHAT_GPT(синхронно): {response.choices[0]['text']}")
+        logger.info(f"__CELEBRATION_GENERATOR__ Ответ от CHAT_GPT(синхронно): {response.choices[0]['text']}")
         return response.choices[0]['text']
 
     def generate_celebrations(self, data: list[dict]) -> list[str]:
@@ -56,7 +56,7 @@ class Celebrator(BaseCelebrator):
             ) for person in data
                    ]
         else:
-            logger.error(f"{exceptions.InvalidDataFormat.__doc__}: названия колонок не соответствуют конфигурации")
+            logger.error(f"__CELEBRATION_GENERATOR__ {exceptions.InvalidDataFormat.__doc__}: названия колонок не соответствуют конфигурации")
             raise exceptions.InvalidDataFormat
 
 
@@ -74,7 +74,7 @@ class AsyncCelebrator(BaseCelebrator):
             stop=None,
             temperature=0.5,
         )
-        logger.info(f"Ответ от CHAT_GPT(aсинхронно): {response.choices[0]['text']}")
+        logger.info(f"__CELEBRATION_GENERATOR__ Ответ от CHAT_GPT(aсинхронно): {response.choices[0]['text']}")
         # из-за проблем с кодировкой пришлось обработать строку именно так
         return response.choices[0]['text'].replace('\n', '').replace('\c', '')[1:]
 
@@ -89,11 +89,11 @@ class AsyncCelebrator(BaseCelebrator):
                     self.replace_message_with_data(str(person['name']), str(person['birthday']))
                 ))
                 tasks.append(task)
-                logger.info(f"Установлена подпрограмма: {task}")     # для отладки
+                logger.info(f"__CELEBRATION_GENERATOR__ Установлена подпрограмма: {task}")     # для отладки
             res = await asyncio.gather(*tasks)
             return res
         else:
-            logger.error(f"{exceptions.InvalidDataFormat.__doc__}: названия колонок не соответствуют конфигурации")
+            logger.error(f"__CELEBRATION_GENERATOR__ {exceptions.InvalidDataFormat.__doc__}: названия колонок не соответствуют конфигурации")
             raise exceptions.InvalidDataFormat
 
 
