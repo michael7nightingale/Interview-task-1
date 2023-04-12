@@ -1,28 +1,50 @@
 """
 Демонстрация функционала без Flask
 """
+import asyncio
+
 
 from src import tables, celebration_generator
-from data_.settings import CELEBRATION_GENERATOR as CG
+from data_.settings import CELEBRATION_GENERATOR
+
+
+def generate_celebrations(filepath: str):
+    """Генерация поздравлений."""
+    # инициализация таблицы
+    table = tables.CsvTableManager(filepath, False, 0)
+    table.open_data()
+    # генерация поздравлений
+    celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+    new_data_column = celebrator.generate_celebrations(
+        table.get_list_of_dicts_data()
+    )
+    # добавление и сохранение данных
+    table.add_column(column_name='celebrations',
+                     column_data=new_data_column,
+                     nullable=True)
+    table.save_data(None)
+
+
+def async_generate_celebrations(filepath: str):
+    """Генерация поздравлений, но асинхронно!!!"""
+    # инициализация таблицы
+    table = tables.CsvTableManager(filepath, False, 0)
+    table.open_data()
+    # генерация поздравлений
+    celebrator = celebration_generator.AsyncCelebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+    new_data_column = asyncio.run(celebrator.generate_celebrations(
+        table.get_list_of_dicts_data()
+    ))
+    # добавление и сохранение данных
+    table.add_column(column_name='celebrations',
+                     column_data=new_data_column,
+                     nullable=True)
+    table.save_data(None)
 
 
 if __name__ == "__main__":
-    # создаем менеджер таблиц
-    table_manager = tables.PandasTableManager('d:/Progs/PycharmProjects/interview/app/corridor/data.csv')
-    table_manager.open_data()
-    print(table_manager.data)
-    # генерация поздравлений
-    celebrator = celebration_generator.Celebrator(token=CG['TOKEN'])
-    celebrations = celebrator.generate_celebrations(
-        data=table_manager.get_list_of_dicts_data()
-    )
-    # добавление поздравлений в таблицу
-    table_manager.add_column(column_name='celebrations',
-                             column_data=celebrations,
-                             nullable=False)
-    # сохраняем данные
-    table_manager.save_data(filepath=None)
-
-
-
-
+    filepath = 'd:/Progs/PycharmProjects/interview/app/corridor/data.csv'
+    # асинхронная генерация
+    async_generate_celebrations(filepath)
+    # или можно синхронно:
+    generate_celebrations(filepath)
