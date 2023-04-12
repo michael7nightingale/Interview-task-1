@@ -15,14 +15,14 @@ class Celebrator:
 
     def chat(self, message: str) -> str:
         """Функция общения с API Chat-GPT. Единственный вопрос - единственный ответ."""
-        chat_ = openai.ChatCompletion.create(
+        response = openai.ChatCompletion.create(
             model='gpt-3.5-turbo',
             messages=[
                 {'role': "user", "content": message}
             ]
         )
-        print(chat_.choices[0].message.content)
-        return chat_.choices[0].message.content
+        print(response.choices[0].message.content) # для отладка
+        return response.choices[0].message.content
 
     def generate_celebrations(self, data: list[dict]) -> list[str]:
         """Генерация списка поздравлений"""
