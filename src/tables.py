@@ -114,7 +114,7 @@ class CsvTableManager(BaseTableManager):
             nulls_to_add = len(self._data) - len(column_data) if (len(self._data) - len(column_data)) >= 0 else 0
             column_data = tuple(column_data) + tuple((self.default for _ in range(nulls_to_add)))
         else:
-            if len(column_data) != len(self.columns):
+            if len(column_data) != len(self.data):
                 logger.error("__TABLES__" + exceptions.AddColumnException.__doc__)
                 raise exceptions.AddColumnException()
         # добавляем новую колонку в данные
@@ -144,6 +144,7 @@ class CsvTableManager(BaseTableManager):
         # если такая колонна есть
         for line in self._data:
             del line[column_name]
+        self.columns.remove(column_name)
 
     def save_data(self, filepath=None) -> None:
         if filepath is None:
@@ -174,18 +175,18 @@ class PandasTableManager(BaseTableManager):
             raise exceptions.ColumnDoesNotExists
         return tuple(self._data[column_name])
 
-    def add_line(self, args: Sequence = tuple(),
+    def add_line(self, line_data: Sequence = tuple(),
                  nullable: bool = False) -> None:
         if nullable:
-            nulls_to_add: int = len(self.columns) - len(args) if (len(self.columns) - len(args) >= 0) else 0
-            self._data.append.loc[len(self._data)] = \
-                (list(args) + [self.default for _ in range(nulls_to_add)])[:len(self._data)]
+            nulls_to_add: int = len(self.columns) - len(line_data) if (len(self.columns) - len(line_data) >= 0) else 0
+            self._data.loc[len(self._data)] = \
+                (list(line_data) + [self.default for _ in range(nulls_to_add)])[:len(self.columns)]
         else:
-            if len(args) != len(self.columns):
+            if len(line_data) != len(self.columns):
                 logger.error("__TABLES__" + exceptions.AddLineException.__doc__)
                 raise exceptions.AddLineException()
             else:
-                self._data.loc[len(self._data)] = args
+                self._data.loc[len(self._data)] = line_data
         logger.info(f"В данные объекта успешно добавлена строчка")
 
     def add_column(self, column_name: str,
@@ -195,7 +196,7 @@ class PandasTableManager(BaseTableManager):
             nulls_to_add: int = len(self._data.values) - len(column_data) if (len(self._data.values) - len(column_data)) >= 0 else 0
             self._data[column_name] = (list(column_data) + ["" for _ in range(nulls_to_add)])[:len(self._data.values)]
         else:
-            if len(column_data) != len(self.columns):
+            if len(column_data) != len(self.data):
                 logger.error("__TABLES__" + exceptions.AddColumnException.__doc__)
                 raise exceptions.AddColumnException()
             else:
@@ -214,6 +215,7 @@ class PandasTableManager(BaseTableManager):
             raise exceptions.ColumnDoesNotExists
         # если такая колонна есть
         del self._data[column_name]
+        self.columns.remove(column_name)
         logger.info(f"__TABLES__ Из данных объекта успешно удалена колонка {column_name}")
 
     def get_list_of_dicts_data(self) -> list[dict]:
