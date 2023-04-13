@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from typing import Sequence
 import pandas as pd
@@ -10,11 +11,12 @@ from data_.settings import logger, TABLES
 class BaseTableManager(ABC):
     """Базовый интерфейс для работы с табличными данными."""
     def __init__(self, filepath: str, delete_mode: bool = False, default=""):
-        self.filepath = filepath
+        if self.validate_filename(filepath):
+            self.filepath = filepath
         self._delete_mode = delete_mode
         self.default = default
         self._data = None
-        logger.info(f"__TABLES__ Создан менеджер таблиц для файла по пути {self.filepath}")
+        # logger.info(f"__TABLES__ Создан менеджер таблиц для файла по пути {self.filepath}")
 
     @property
     def data(self):
@@ -61,6 +63,20 @@ class BaseTableManager(ABC):
         """Сохранение файла."""
         pass
 
+    @staticmethod
+    def validate_filename(filename: str):
+        """Проверка расширения файла"""
+        try:
+            match filename.rsplit('/', 1)[-1].split('.'):
+                case [file_, extension]:
+                    if extension in TABLES['ALLOWED_EXTENSIONS']:
+                        return True
+                    else:
+                        raise exceptions.FileExtensionError
+                case _:
+                    raise exceptions.FileExtensionError
+        except:
+            raise exceptions.FileExtensionError
 
 class CsvTableManager(BaseTableManager):
     """Расширение для работы с табличными данными c помощью библиотеки csv."""
