@@ -1,6 +1,11 @@
 import unittest
+
+import openai.error
+
 from src import tables
+from src import celebration_generator
 from src import exceptions
+from data_.settings import CELEBRATION_GENERATOR, TABLES
 
 
 class CsvTableManagerTest(unittest.TestCase):
@@ -93,6 +98,7 @@ class CsvTableManagerTest(unittest.TestCase):
         with self.assertRaises(exceptions.ColumnDoesNotExists):
             table.delete_column(column_name='javascript_sucks')
 
+
 class PandasTableManagerTest(unittest.TestCase):
     def test_create_table_success(self):
         table = tables.PandasTableManager('data.csv')
@@ -182,3 +188,69 @@ class PandasTableManagerTest(unittest.TestCase):
         table.open_data()
         with self.assertRaises(exceptions.ColumnDoesNotExists):
             table.delete_column(column_name='javascript_sucks')
+
+
+class CelebratorTest(unittest.TestCase):
+    """ТЕСТИРОВАНИЕ СЛЕДУЕТ ПРОВОДИТЬ, ИМЕЯ РАБОЧИЙ API-KEY в data_/settings.py,
+     иначе тесты не пройдут."""
+    def test_chat(self):
+        celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+        self.assertIsInstance(
+            celebrator.chat('Как на практике в программировании применяется паттерн  Наблюдатель?'),
+            str
+        )
+
+    def test_init_key_error(self):
+        with self.assertRaises(openai.error.AuthenticationError) as e:
+            celebrator = celebration_generator.Celebrator(token='using System.Text;')
+            response = celebrator.chat("Лучшие сосуды для опытов дома.")
+
+    def test_generate_celebration_success(self):
+        celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+        cels = celebrator.generate_celebrations([
+            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Михаил',
+             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.10"},
+            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
+             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
+            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
+             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},
+        ])
+        self.assert_(bool(cels))
+
+    def test_generate_celebration_format_error(self):
+        celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+        with self.assertRaises(exceptions.InvalidDataFormat):
+            cels = celebrator.generate_celebrations([
+                {"фылов10": 'Михаил',
+                 'ыдв': "14.10"},
+                {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
+                 CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
+                {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
+                 CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},
+            ])
+
+
+class AsyncCelebratorTest(unittest.TestCase):
+    """ТЕСТИРОВАНИЕ СЛЕДУЕТ ПРОВОДИТЬ, ИМЕЯ РАБОЧИЙ API-KEY в data_/settings.py,
+     иначе тесты не пройдут."""
+    def test_chat(self):
+        celebrator = celebration_generator.AsyncCelebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+        self.assert_(bool(celebrator.chat('Как на практике в программировании применяется паттерн  Наблюдатель?')))
+
+    def test_init_key_error(self):
+        with self.assertRaises(openai.error.AuthenticationError) as e:
+            celebrator = celebration_generator.Celebrator(token='using System.Text;')
+            response = celebrator.chat("Лучшие сосуды для опытов дома.")
+
+    def test_generate_celebration_success(self):
+        celebrator = celebration_generator.AsyncCelebrator(token=CELEBRATION_GENERATOR['TOKEN'])
+        cels = celebrator.generate_celebrations([
+            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Михаил',
+             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.10"},
+            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
+             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
+            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
+             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},
+        ])
+        self.assert_(bool(cels))
+
