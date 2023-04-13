@@ -47,4 +47,5 @@ if __name__ == "__main__":
     # асинхронная генерация
     async_generate_celebrations(filepath)
     # или можно синхронно:
-    generate_celebrations(filepath)
+    # generate_celebrations(filepath)
+
