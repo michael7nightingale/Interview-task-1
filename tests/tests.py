@@ -1,5 +1,4 @@
 import unittest
-
 import openai.error
 
 from src import tables
