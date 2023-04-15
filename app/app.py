@@ -3,6 +3,7 @@
 """
 import asyncio
 import os
+from time import time
 from flask import Flask, render_template, request, redirect, send_file, url_for, flash
 
 from data_.settings import APP, SERVER, CELEBRATION_GENERATOR, logger
@@ -83,6 +84,7 @@ def async_generate_celebrations(filepath: str,
 def upload_file():
     """Загрузка и обработка файла."""
     logger.info(f"__APP__...POST-запрос по адресу /upload_file/")
+    start_time = time()
     try:
         # данные из формы
         file = request.files['file']
@@ -112,11 +114,13 @@ def upload_file():
             return send_file(path_or_file=filepath, as_attachment=True)
         # если не прошли условия
         logger.error(f"__APP__ Неразрешенное расширение файла")
-        flash('Incorrect file extension or data')
+        flash('Incorrect file extension or data', 'error')
     except Exception as error:
         # отображаем пользователю ошибку, если она нашлась
         logger.error("__APP__" + str(error))
-        flash(str(error))
+        flash(str(error), 'error')
+    finally:
+        flash(str(time() - start_time), 'time')
     # редирект на главную страницу
     return redirect(url_for('main_get'))
 

@@ -14,8 +14,11 @@
             <input type="text" name="birthday_column" placeholder="Заголовок столбца с датами рождения">
             <input type="text" name="celebration_column" placeholder="Заголовок столбца с генерированными поздравлениями">
             <input type="submit" placeholder="Генерировать поздравления">
-            {% for error in get_flashed_messages() %}
-            <h1>{{ error }}</h1>
+            {% for message in get_flashed_messages(True, 'time') %}
+            <h3>Время выполнения: {{ message[1] }} сек.</h3>
+            {% endfor %}
+            {% for error in get_flashed_messages(True, 'error') %}
+            <h1>{{ error[1] }}</h1>
             {% endfor %}
         </form>
 
