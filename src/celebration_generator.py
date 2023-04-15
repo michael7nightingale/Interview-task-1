@@ -26,7 +26,9 @@ class BaseCelebrator(ABC):
         pass
 
     @abstractmethod
-    def generate_celebrations(self, data: list[dict]) -> list[str]:
+    def generate_celebrations(self, data: list[dict],
+                              name_column: str,
+                              birthday_column: str) -> list[str]:
         pass
 
 
@@ -47,10 +49,12 @@ class Celebrator(BaseCelebrator):
         logger.info(f"__CELEBRATION_GENERATOR__ Ответ от CHAT_GPT(синхронно): {response.choices[0]['text']}")
         return response.choices[0]['text']
 
-    def generate_celebrations(self, data: list[dict]) -> list[str]:
+    def generate_celebrations(self, data: list[dict],
+                              name_column: str,
+                              birthday_column: str) -> list[str]:
         """Генерация списка поздравлений"""
         # проверка на валидность формата представления данных
-        if all(CELEBRATION_GENERATOR["NAME_COLUMN"] in line and CELEBRATION_GENERATOR["BIRTHDAY_COLUMN"] in line for line in data):
+        if all(name_column in line and birthday_column in line for line in data):
             return [self.chat(
                 self.replace_message_with_data(str(person['name']), str(person['birthday']))
             ) for person in data
@@ -78,10 +82,12 @@ class AsyncCelebrator(BaseCelebrator):
         # из-за проблем с кодировкой пришлось обработать строку именно так
         return response.choices[0]['text'].replace('\n', '').replace('\c', '')[1:]
 
-    async def generate_celebrations(self, data: list[dict]) -> list[str]:
+    async def generate_celebrations(self, data: list[dict],
+                                    name_column: str,
+                                    birthday_column: str) -> list[str]:
         """Генерация списка поздравлений"""
         # проверка на валидность формата представления данных
-        if all(CELEBRATION_GENERATOR["NAME_COLUMN"] in line and CELEBRATION_GENERATOR["BIRTHDAY_COLUMN"] in line for
+        if all(name_column in line and birthday_column in line for
                line in data):
             tasks = []
             for person in data:

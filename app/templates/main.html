@@ -5,10 +5,14 @@
     <title>Main page</title>
 </head>
 <body>
-    <div>
-        <form method="post" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
+    <div class="form-control">
+        <form method="post" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" class="form-control">
             <label for="form_file">Допустимые форматы: .csv</label>
             <input type="file" id="form_file" name='file' placeholder="Перетащите файл">
+            <input type="text" name="api_key" placeholder="Ключ API">
+            <input type="text" name="name_column" placeholder="Заголовок столбца с именами">
+            <input type="text" name="birthday_column" placeholder="Заголовок столбца с датами рождения">
+            <input type="text" name="celebration_column" placeholder="Заголовок столбца с генерированными поздравлениями">
             <input type="submit" placeholder="Генерировать поздравления">
             {% for error in get_flashed_messages() %}
             <h1>{{ error }}</h1>

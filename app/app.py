@@ -8,6 +8,8 @@ from flask import Flask, render_template, request, redirect, send_file, url_for,
 from data_.settings import APP, SERVER, CELEBRATION_GENERATOR, logger
 from src import tables, exceptions, celebration_generator
 
+# =========================КОНФИГУРАЦИЯ====================== #
+
 # экземпляр приложения с названием по соглашению
 app = Flask(__name__)
 # импорт настроек
@@ -15,6 +17,7 @@ app.config = dict(
     tuple(app.config.items()) + tuple(APP.items())
 )
 
+# =======================ЛОГИКА=ПРИЛОЖЕНИЯ================== #
 
 @app.get("/")
 def main_get():
@@ -23,35 +26,46 @@ def main_get():
     return render_template("main.html")
 
 
-def generate_celebrations(filepath: str):
+def generate_celebrations(filepath: str,
+                          name_column: str,
+                          birthday_column: str,
+                          celebration_column: str,
+                          api_key: str):
     """Генерация поздравлений."""
     # инициализация таблицы
     table = tables.CsvTableManager(filepath, False, 0)
     table.open_data()
     # генерация поздравлений
-    celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
-    new_data_column = celebrator.generate_celebrations(
-        table.get_list_of_dicts_data()
-    )
+    celebrator = celebration_generator.Celebrator(token=api_key)
+    new_data_column = celebrator.generate_celebrations(data=table.get_list_of_dicts_data(),
+                                                       name_column=name_column,
+                                                       birthday_column=birthday_column)
     # добавление и сохранение данных
-    table.add_column(column_name='celebrations',
+    table.add_column(column_name=celebration_column,
                      column_data=new_data_column,
                      nullable=True)
     table.save_data(None)
 
 
-def async_generate_celebrations(filepath: str):
+def async_generate_celebrations(filepath: str,
+                                name_column: str,
+                                birthday_column: str,
+                                celebration_column: str,
+                                api_key: str):
     """Генерация поздравлений."""
     # инициализация таблицы
     table = tables.CsvTableManager(filepath, False, 0)
     table.open_data()
     # генерация поздравлений
-    celebrator = celebration_generator.AsyncCelebrator(token=CELEBRATION_GENERATOR['TOKEN'])
-    new_data_column = asyncio.run(celebrator.generate_celebrations(
-        table.get_list_of_dicts_data()
-    ))
+    celebrator = celebration_generator.AsyncCelebrator(token=api_key)
+    new_data_column = asyncio.run(
+        celebrator.generate_celebrations(data=table.get_list_of_dicts_data(),
+                                         name_column=name_column,
+                                         birthday_column=birthday_column)
+        )
+
     # добавление и сохранение данных
-    table.add_column(column_name='celebrations',
+    table.add_column(column_name=celebration_column,
                      column_data=new_data_column,
                      nullable=True)
     table.save_data(None)
@@ -70,15 +84,30 @@ def upload_file():
     """Загрузка и обработка файла."""
     logger.info(f"__APP__...POST-запрос по адресу /upload_file/")
     try:
+        # данные из формы
         file = request.files['file']
+        # дынные для неопытных
+        name_column = request.form['name_column']
+        birthday_column = request.form['birthday_column']
+        celebration_column = request.form['celebration_column']
+        api_key = request.form['api_key']
+        # обработка данных из формы
         if file and verify_filename(file.filename):
             logger.info(f"__APP__ Путь до папки в коридоре: {app.config['UPLOAD_FOLDER']}")
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
             # асинхронная генерация
-            async_generate_celebrations(filepath)
+            # async_generate_celebrations(filepath=filepath,
+            #                             name_column=name_column,
+            #                             birthday_column=birthday_column,
+            #                             celebration_column=celebration_column,
+            #                             api_key=api_key)
             # или можно синхронно:
-            # generate_celebrations(filepath)
+            generate_celebrations(filepath=filepath,
+                                  name_column=name_column,
+                                  birthday_column=birthday_column,
+                                  celebration_column=celebration_column,
+                                  api_key=api_key)
             # после обработки отправляем файл пользователю
             return send_file(path_or_file=filepath, as_attachment=True)
         # если не прошли условия

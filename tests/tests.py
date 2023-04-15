@@ -206,27 +206,26 @@ class CelebratorTest(unittest.TestCase):
 
     def test_generate_celebration_success(self):
         celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
-        cels = celebrator.generate_celebrations([
-            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Михаил',
-             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.10"},
-            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
-             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
-            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
-             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},
-        ])
+        cels = celebrator.generate_celebrations(data=[{CELEBRATION_GENERATOR['NAME_COLUMN']: 'Михаил',
+                                                CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.10"},
+                                                {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
+                                                 CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
+                                                {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
+                                                 CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},],
+                                                name_column=CELEBRATION_GENERATOR['NAME_COLUMN'],
+                                                birthday_column=CELEBRATION_GENERATOR['BIRTHDAY_COLUMN'])
         self.assert_(bool(cels))
 
     def test_generate_celebration_format_error(self):
         celebrator = celebration_generator.Celebrator(token=CELEBRATION_GENERATOR['TOKEN'])
         with self.assertRaises(exceptions.InvalidDataFormat):
-            cels = celebrator.generate_celebrations([
-                {"фылов10": 'Михаил',
-                 'ыдв': "14.10"},
-                {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
-                 CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
-                {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
-                 CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},
-            ])
+            cels = celebrator.generate_celebrations([{"фылов10": 'Михаил', 'ыдв': "14.10"},
+                                                    {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
+                                                     CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
+                                                    {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
+                                                     CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},],
+                                                    name_column=CELEBRATION_GENERATOR['NAME_COLUMN'],
+                                                    birthday_column=CELEBRATION_GENERATOR['BIRTHDAY_COLUMN'])
 
 
 class AsyncCelebratorTest(unittest.TestCase):
@@ -243,13 +242,13 @@ class AsyncCelebratorTest(unittest.TestCase):
 
     def test_generate_celebration_success(self):
         celebrator = celebration_generator.AsyncCelebrator(token=CELEBRATION_GENERATOR['TOKEN'])
-        cels = celebrator.generate_celebrations([
-            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Михаил',
-             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.10"},
-            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
-             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
-            {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
-             CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"},
-        ])
+        cels = celebrator.generate_celebrations(data=[{CELEBRATION_GENERATOR['NAME_COLUMN']: 'Михаил',
+                                                       CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.10"},
+                                                      {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Варвара',
+                                                       CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "14.07"},
+                                                      {CELEBRATION_GENERATOR['NAME_COLUMN']: 'Антон',
+                                                       CELEBRATION_GENERATOR['BIRTHDAY_COLUMN']: "31.12"}, ],
+                                                name_column=CELEBRATION_GENERATOR['NAME_COLUMN'],
+                                                birthday_column=CELEBRATION_GENERATOR['BIRTHDAY_COLUMN'])
         self.assert_(bool(cels))
 

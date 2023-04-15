@@ -117,8 +117,11 @@ class CsvTableManager(BaseTableManager):
             if len(column_data) != len(self.data):
                 logger.error("__TABLES__" + exceptions.AddColumnException.__doc__)
                 raise exceptions.AddColumnException()
+        print(column_name)
         # добавляем новую колонку в данные
+
         self.columns.append(column_name)
+        print(self.columns)
         for line_number in range(len(self._data)):
             self._data[line_number][column_name] = column_data[line_number]
         logger.info(f"__TABLES__ В данные объекта успешно добавлена колонка {column_name}")
