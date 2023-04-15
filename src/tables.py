@@ -25,8 +25,7 @@ class BaseTableManager(ABC):
     @data.setter
     def data(self, new_data) -> None:
         if not self._data:
-            # if type(new_data) == list[dict]:
-                self._data = new_data
+            self._data = new_data
 
     @abstractmethod
     def open_data(self) -> None:
@@ -77,6 +76,11 @@ class BaseTableManager(ABC):
                     raise exceptions.FileExtensionError
         except:
             raise exceptions.FileExtensionError
+
+    def __iter__(self):
+        """Вдруг понадобится итерирование."""
+        return iter(self.get_list_of_dicts_data())
+
 
 class CsvTableManager(BaseTableManager):
     """Расширение для работы с табличными данными c помощью библиотеки csv."""
