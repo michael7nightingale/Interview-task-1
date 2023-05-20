@@ -18,6 +18,7 @@ app.config = dict(
     tuple(app.config.items()) + tuple(APP.items())
 )
 
+
 # =======================ЛОГИКА=ПРИЛОЖЕНИЯ================== #
 
 @app.get("/")

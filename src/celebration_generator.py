@@ -2,6 +2,8 @@
 Функционал ChatGTP API для генерации поздравлений.
 """
 import asyncio
+import threading
+
 import openai
 from abc import ABC, abstractmethod
 
@@ -9,11 +11,16 @@ from data_.settings import CELEBRATION_GENERATOR, logger
 from src import exceptions
 
 
+eventor = threading.Event()
+
+
 class BaseCelebrator(ABC):
     def __init__(self, token: str):
         self.__token = token
         openai.api_key = self.__token
         logger.info("__CELEBRATION_GENERATOR__ Успешно инициализирован и авторизирован API")
+
+
 
     @staticmethod
     def replace_message_with_data(name: str, birthday: str) -> str:
@@ -38,12 +45,12 @@ class Celebrator(BaseCelebrator):
     @staticmethod
     def chat(message: str) -> str:
         """Функция общения с API Chat-GPT. Единственный вопрос - единственный ответ."""
+        print(message)
         response = openai.Completion.create(
             engine="text-davinci-003",
             prompt=message,
             max_tokens=2048,
             n=1,
-            stop=None,
             temperature=0.5,
         )
         logger.info(f"__CELEBRATION_GENERATOR__ Ответ от CHAT_GPT(синхронно): {response.choices[0]['text']}")
@@ -54,6 +61,7 @@ class Celebrator(BaseCelebrator):
                               birthday_column: str) -> list[str]:
         """Генерация списка поздравлений"""
         # проверка на валидность формата представления данных
+        print(data)
         if all(name_column in line and birthday_column in line for line in data):
             return [self.chat(
                 self.replace_message_with_data(str(person['name']), str(person['birthday']))
@@ -101,6 +109,38 @@ class AsyncCelebrator(BaseCelebrator):
         else:
             logger.error(f"__CELEBRATION_GENERATOR__ {exceptions.InvalidDataFormat.__doc__}: названия колонок не соответствуют конфигурации")
             raise exceptions.InvalidDataFormat
+
+
+class ThreadCelebrator(BaseCelebrator):
+
+    def generate_celebrations(self, data: list[dict],
+                              name_column: str,
+                              birthday_column: str) -> list[str]:
+        tasks = []
+        for i in data:
+            tasks.append(
+                threading.Thread(
+                    target=self.chat, args=(self.replace_message_with_data(str(i['name']), str(i['birthday'])), )
+                )
+                         )
+            tasks[-1].start()
+
+        return tasks
+
+    @staticmethod
+    def chat(message: str) -> str:
+        response = openai.Completion.create(
+            engine='text-davinci-003',
+            prompt=message,
+            max_tokens=2048,
+            n=1,
+            temperature=0.5,
+
+        )
+        eventor.set()
+        return response.choices[0]['text']
+
+
 
 
 

@@ -18,6 +18,9 @@ class BaseTableManager(ABC):
         self._data = None
         # logger.info(f"__TABLES__ Создан менеджер таблиц для файла по пути {self.filepath}")
 
+    @abstractmethod
+    def init_data(self, columns_name: list[str]):
+        pass
     @property
     def data(self):
         return self._data
@@ -62,6 +65,10 @@ class BaseTableManager(ABC):
         """Сохранение файла."""
         pass
 
+    # @abstractmethod
+    # def get_binary_data(self):
+    #     self.save_data()
+
     @staticmethod
     def validate_filename(filename: str):
         """Проверка расширения файла"""
@@ -86,6 +93,10 @@ class CsvTableManager(BaseTableManager):
     """Расширение для работы с табличными данными c помощью библиотеки csv."""
     _data: list[dict]
     columns: list
+
+    def init_data(self, columns_name: list[str]):
+        self.columns = list(columns_name)
+        self._data = []
 
     def open_data(self):
         with open(self.filepath, encoding='utf-8') as csv_file:
@@ -170,6 +181,10 @@ class PandasTableManager(BaseTableManager):
     (`pd` - синоним)."""
     _data = pd.DataFrame
     columns = pd.Index
+
+    def init_data(self, columns_name: list[str]):
+        self.columns = list(columns_name)
+        self._data = pd.DataFrame()
 
     def open_data(self) -> None:
         self._data: pd.DataFrame = pd.read_csv(self.filepath)
