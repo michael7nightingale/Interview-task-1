@@ -3,7 +3,6 @@
 """
 import asyncio
 
-
 from src import tables, celebration_generator
 from data_.settings import CELEBRATION_GENERATOR
 import time
@@ -61,11 +60,11 @@ def async_generate_celebrations(filepath: str,
     table.open_data()
     # генерация поздравлений
     celebrator = celebration_generator.AsyncCelebrator(token=api_key)
-    new_data_column = asyncio.run(
-        celebrator.generate_celebrations(data=table.get_list_of_dicts_data(),
-                                         name_column=name_column,
-                                         birthday_column=birthday_column)
-        )
+    new_data_column = celebrator.generate_celebrations(
+        data=table.get_list_of_dicts_data(),
+        name_column=name_column,
+        birthday_column=birthday_column
+    )
 
     # добавление и сохранение данных
     table.add_column(column_name=celebration_column,
@@ -75,7 +74,6 @@ def async_generate_celebrations(filepath: str,
 
 
 if __name__ == "__main__":
-    # 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
     t = tables.CsvTableManager(filepath='d:/KING/data.csv')
     t.init_data(["name", "birthday"])
     data = [["Михаил", "14.10.2006"], ["Анюта", "14.10.2006"], ["Эмуль", "04.10.2006"], ["Абдул", "14.10.2006"], ]
@@ -85,16 +83,13 @@ if __name__ == "__main__":
     filepath = 'd:/KING/data.csv'
     # асинхронная генерация
     time_ = time.perf_counter()
-    generate_celebrations(filepath=filepath,
-                          birthday_column=CELEBRATION_GENERATOR['BIRTHDAY_COLUMN'],
-                          name_column=CELEBRATION_GENERATOR['NAME_COLUMN'],
-                          celebration_column='celebrations',
-                          api_key=CELEBRATION_GENERATOR["TOKEN"])
-    # или можно синхронно:
-    # generate_celebrations(filepath)
-    # marksWere = 0
-    # while marksWere < len(data):
-    #     mark = celebration_generator.eventor.wait()
-    #     marksWere += 1
+    async_generate_celebrations(
+        filepath=filepath,
+        birthday_column=CELEBRATION_GENERATOR['BIRTHDAY_COLUMN'],
+        name_column=CELEBRATION_GENERATOR['NAME_COLUMN'],
+        celebration_column='celebrations',
+        api_key=CELEBRATION_GENERATOR["TOKEN"]
+    )
+
     print("Time:", time.perf_counter() - time_)
 

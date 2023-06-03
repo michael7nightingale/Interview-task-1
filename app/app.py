@@ -9,7 +9,8 @@ from flask import Flask, render_template, request, redirect, send_file, url_for,
 from data_.settings import APP, SERVER, CELEBRATION_GENERATOR, logger
 from src import tables, exceptions, celebration_generator
 
-# =========================КОНФИГУРАЦИЯ====================== #
+
+# ========================= КОНФИГУРАЦИЯ ====================== #
 
 # экземпляр приложения с названием по соглашению
 app = Flask(__name__)
@@ -39,9 +40,11 @@ def generate_celebrations(filepath: str,
     table.open_data()
     # генерация поздравлений
     celebrator = celebration_generator.Celebrator(token=api_key)
-    new_data_column = celebrator.generate_celebrations(data=table.get_list_of_dicts_data(),
-                                                       name_column=name_column,
-                                                       birthday_column=birthday_column)
+    new_data_column = celebrator.generate_celebrations(
+        data=table.get_list_of_dicts_data(),
+        name_column=name_column,
+        birthday_column=birthday_column
+    )
     # добавление и сохранение данных
     table.add_column(column_name=celebration_column,
                      column_data=new_data_column,
@@ -60,25 +63,16 @@ def async_generate_celebrations(filepath: str,
     table.open_data()
     # генерация поздравлений
     celebrator = celebration_generator.AsyncCelebrator(token=api_key)
-    new_data_column = asyncio.run(
-        celebrator.generate_celebrations(data=table.get_list_of_dicts_data(),
-                                         name_column=name_column,
-                                         birthday_column=birthday_column)
-        )
-
+    new_data_column = celebrator.generate_celebrations(
+        data=table.get_list_of_dicts_data(),
+        name_column=name_column,
+        birthday_column=birthday_column
+    )
     # добавление и сохранение данных
     table.add_column(column_name=celebration_column,
                      column_data=new_data_column,
                      nullable=True)
     table.save_data(None)
-
-
-# def save_and_delete(func):
-#     def wrapper(*args, **kwargs):
-#         result = func(*args, **kwargs)
-#         os.remove(kwargs['path_or_file'])
-#         return result
-#     return wrapper
 
 
 @app.post("/upload_file/")
@@ -100,17 +94,17 @@ def upload_file():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
             # асинхронная генерация
-            # async_generate_celebrations(filepath=filepath,
-            #                             name_column=name_column,
-            #                             birthday_column=birthday_column,
-            #                             celebration_column=celebration_column,
-            #                             api_key=api_key)
+            async_generate_celebrations(filepath=filepath,
+                                        name_column=name_column,
+                                        birthday_column=birthday_column,
+                                        celebration_column=celebration_column,
+                                        api_key=api_key)
             # или можно синхронно:
-            generate_celebrations(filepath=filepath,
-                                  name_column=name_column,
-                                  birthday_column=birthday_column,
-                                  celebration_column=celebration_column,
-                                  api_key=api_key)
+            # generate_celebrations(filepath=filepath,
+            #                       name_column=name_column,
+            #                       birthday_column=birthday_column,
+            #                       celebration_column=celebration_column,
+            #                       api_key=api_key)
             # после обработки отправляем файл пользователю
             return send_file(path_or_file=filepath, as_attachment=True)
         # если не прошли условия

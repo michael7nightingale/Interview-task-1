@@ -1,4 +1,3 @@
-import os
 from abc import ABC, abstractmethod
 from typing import Sequence
 import pandas as pd
@@ -167,7 +166,7 @@ class CsvTableManager(BaseTableManager):
     def save_data(self, filepath=None) -> None:
         if filepath is None:
             filepath = self.filepath
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, 'w', encoding='utf-8', newline='') as f:
             writer = csv.DictWriter(
                 f, fieldnames=list(self._data[0].keys()), quoting=csv.QUOTE_NONNUMERIC)
             writer.writeheader()
